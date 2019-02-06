@@ -4,6 +4,7 @@ using namespace sf;
 using namespace std;
 
 EcgInterpreter::EcgInterpreter() {
+    mThreshold = 10;
     TA_RetCode retCode;
 
     retCode = TA_Initialize( );
@@ -12,34 +13,56 @@ EcgInterpreter::EcgInterpreter() {
         printf( "Cannot initialize TA-Lib (%d)!\n", retCode );
     else  
          printf( "TA-Lib correctly initialized.\n" );
-   
-
-    for(unsigned int i = 0 ; i < 8 ; i++) {
-        for(unsigned int j = 0 ; j < BUFFER_SIZE ; j++) {
-            buffers[i][j] = sin(j / 10.0f) * 127.0f;
-        }
-        TA_Integer outBeg, outNbElement;
-        retCode = TA_MA( 
-            0,
-            BUFFER_SIZE,
-            &buffers[i][0],
-            30,
-            TA_MAType_SMA,
-            &outBeg,
-            &outNbElement,
-            &mIndicators[i][0]
-        );
-    }
+    mFrameStart = clock();
 }
 
 void EcgInterpreter::feedData(double data[8]) {
+    double maxTime = BUFFER_SIZE * REFRESH_PERIOD;
+    double sinceFrameStart  = (clock() - mFrameStart) / 1000.0f;
+    unsigned int index = (unsigned int)((sinceFrameStart / maxTime)) % BUFFER_SIZE;
     for(unsigned int i = 0 ; i < 8 ; i++) {
-        unsigned int j = int((getMicrotime() / 10e5f) * REFRESH_PERIOD) % BUFFER_SIZE;
-        buffers[i][j] = data[i];
+        mBuffers[i][index] = data[i];
+    }
+    mDataIndex = index;
+    _computeIndicators();
+    _updatePrediction();
+}
+
+void EcgInterpreter::_computeIndicators() {
+    for(unsigned int i = 0 ; i < 8 ; i++) {
+        TA_Integer outBeg, outNbElement;
+        TA_RetCode retCode = TA_MA( 
+            0,
+            mDataIndex,
+            &mBuffers[i][0],
+            15,
+            TA_MAType_SMA,
+            &outBeg,
+            &outNbElement,
+            &mShiftedIndicators[i][0]
+        );
+        mIndicators[i][mDataIndex] = mShiftedIndicators[i][mDataIndex-outBeg];
+    }
+}
+
+void EcgInterpreter::_updatePrediction() {
+    for(unsigned int i = 0 ; i < 8 ; i++) {
+        cout << mIndicators[i][mDataIndex] << "\t";
+        mPrediction[i] = mIndicators[i][mDataIndex] > mThreshold;
     }
 }
 
 void EcgInterpreter::draw(sf::RenderTarget& target, sf::RenderStates states) const {
+    RectangleShape rectangle(Vector2f(SCREEN_WIDTH, SCREEN_HEIGHT / 8));
+    cout << "mPrediction : ";
+    for(unsigned int i = 0 ; i < 8 ; i++) {
+        cout << mPrediction[i] << "\t";
+        rectangle.setFillColor(mPrediction[i] ? Color::Blue : Color::Black);
+        rectangle.setPosition(Vector2f(0,(i+1) * (SCREEN_HEIGHT / 8)));
+        target.draw(rectangle);
+    }
+    cout << endl;
+
     for(unsigned int i = 0 ; i < 8 ; i++) {
         VertexArray vertices(sf::Lines, BUFFER_SIZE * 2);
         vertices[0].position = Vector2f( 0, (i+1) * (SCREEN_HEIGHT / 8));
@@ -48,14 +71,14 @@ void EcgInterpreter::draw(sf::RenderTarget& target, sf::RenderStates states) con
             vertices[j].position = Vector2f(
                 j * (SCREEN_WIDTH / BUFFER_SIZE),
                 (i+1) * (SCREEN_HEIGHT / 8)
-                - abs(buffers[i][j/2] - (-127) * ((SCREEN_HEIGHT / 8) / abs(127-(-127))))
+                - abs(mBuffers[i][j/2] - (-127) * ((SCREEN_HEIGHT / 8) / abs(127-(-127))))
             );
             vertices[j].color = sf::Color::Red;
             vertices[j+1] = vertices[j];
         }
         target.draw(vertices);
     }
-        for(unsigned int i = 0 ; i < 8 ; i++) {
+    for(unsigned int i = 0 ; i < 8 ; i++) {
         VertexArray vertices(sf::Lines, BUFFER_SIZE * 2);
         vertices[0].position = Vector2f( 0, (i+1) * (SCREEN_HEIGHT / 8));
         vertices[BUFFER_SIZE * 2-1].position = Vector2f( SCREEN_WIDTH, (i+1) * (SCREEN_HEIGHT / 8));

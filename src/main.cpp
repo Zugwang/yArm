@@ -3,6 +3,7 @@
 #include <iostream>
 #include <time.h>
 #include <SFML/Graphics.hpp>
+#include <math.h>
 
 #include "utils.hpp"
 #include "myoband.hpp"
@@ -19,7 +20,9 @@ int main() {
     // MyoBand band;
     OwiArm arm;
     EcgInterpreter interpreter;
+    unsigned int j = 0;
     while (window.isOpen()) {
+        j++;
         window.clear(sf::Color::Black);
         sf::Event event;
         while (window.pollEvent(event))
@@ -27,8 +30,15 @@ int main() {
             if (event.type == sf::Event::Closed)
                 window.close();
         }
+        double data[8];
+        for(unsigned int i = 0 ; i < 8 ; i++) {
+            j+=10;
+            data[i] = sin(j / 1000.0f) * 25.f;
+            data[i] += cos(j / 250.0f) * 75.f;
 
-
+           // cout << data[i] << "\t";
+        }
+        interpreter.feedData(data);
         window.draw(interpreter);
         window.display();
     }
