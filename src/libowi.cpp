@@ -105,8 +105,8 @@ int owi_send_command(unsigned char b1, unsigned char b2, unsigned char b3)
   cmd[1] = b2;
   cmd[2] = b3;
 
-  fprintf(stderr, "Sending %02X %02X %02X\n",
-	  (int)cmd[0], (int)cmd[1], (int)cmd[2]);
+  /*fprintf(stderr, "Sending %02X %02X %02X\n",
+	  (int)cmd[0], (int)cmd[1], (int)cmd[2]);*/
 
   if (devh == NULL) {
     return 0;

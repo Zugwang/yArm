@@ -1,6 +1,6 @@
 CC=g++
-CFLAGS= -Wall -ansi -pedantic   -c -std=c++11 -pthread -lpthread  -g3 -O0 -lmyolinux -L /usr/local/lib/ -lusb-1.0
-LDFLAGS= -Wall -ansi -pedantic  -std=c++11 -pthread -lpthread -g3 -O0 -lmyolinux -L /usr/local/lib/ -lusb-1.0
+CFLAGS= -Wall -ansi -pedantic   -c -std=c++11   -g3 -O0 
+LDFLAGS= -pthread -lpthread  -lmyolinux -L /usr/local/lib/ /usr/lib/libta_lib.a -lusb-1.0 -lsfml-graphics -lsfml-window -lsfml-system  -lsfml-network -lta_lib
 EXEC=yarm
 SRCDIR=src
 ODIR=obj
