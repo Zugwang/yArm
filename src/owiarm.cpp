@@ -32,13 +32,14 @@ void OwiArm::_updateCMD() {
         mCurrentCMD[1] &= ~MASK_STOP_BASE;
         mCurrentCMD[1] |= MASK_BASE_CLOCKWISE;
     }
-    if(mBasePosition.y < mBasePositionTarget.y) {
+    mCurrentCMD[0] &= ~MASK_STOP_SHOULDER;
+   /* if(mBasePosition.y < mBasePositionTarget.y) {
         mCurrentCMD[0] &= ~MASK_STOP_SHOULDER;
         mCurrentCMD[0] |= MASK_SHOULDER_UP;
     } else {
         mCurrentCMD[0] &= ~MASK_STOP_SHOULDER;
         mCurrentCMD[0] |= MASK_SHOULDER_DOWN;
-    }
+    }*/
     owi_send_command(mCurrentCMD[0], mCurrentCMD[1], mCurrentCMD[2]);
 }
 
@@ -54,7 +55,6 @@ void OwiArm::update() {
 
 ostream& operator<<(ostream& os, const OwiArm& arm)
 {
-
-    os << "x: " << arm.mBasePosition.x << "\ty: " << arm.mBasePosition.y;
-    return os;
+   os << arm.mBasePosition.x << "\t" << arm.mBasePosition.y;
+   return os;
 }

@@ -125,7 +125,7 @@ int owi_send_command(unsigned char b1, unsigned char b2, unsigned char b3)
 			      0);
 
   if(!(r == 0 && actual_length >= CMD_DATALEN)) {
-    fprintf(stderr, "Write err %d. len=%d\n",r,actual_length);
+    fprintf(stderr, "Write err %d %s. len=%d\n",r,libusb_error_name(r), actual_length);
   }
 
   return r;

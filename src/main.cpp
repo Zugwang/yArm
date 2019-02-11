@@ -16,13 +16,14 @@ using namespace sf;
 
 
 int main() {
-    RenderWindow window(VideoMode(SCREEN_WIDTH, SCREEN_HEIGHT), "yArm");
-    // MyoBand band;
-    OwiArm arm;
-    EcgInterpreter interpreter;
+
+    MyoBand band;
+    //RenderWindow window(VideoMode(SCREEN_WIDTH, SCREEN_HEIGHT), "yArm");
+   OwiArm arm;
+   // band.vibrate(myolinux::myo::Vibration::);
+    /*EcgInterpreter interpreter;
     unsigned int j = 0;
     while (window.isOpen()) {
-        j++;
         window.clear(sf::Color::Black);
         sf::Event event;
         while (window.pollEvent(event))
@@ -31,28 +32,31 @@ int main() {
                 window.close();
         }
         double data[8];
-        for(unsigned int i = 0 ; i < 8 ; i++) {
-            j+=10;
-            data[i] = sin(j / 1000.0f) * 25.f;
-            data[i] += cos(j / 250.0f) * 75.f;
-
-           // cout << data[i] << "\t";
-        }
+        band.update();
+        band.getEMGArray(data);
+       // cout << "emgData 0" << data[0] << endl;
         interpreter.feedData(data);
         window.draw(interpreter);
         window.display();
-    }
-/*
-    cout << arm << endl;
-    for(unsigned int i = 0 ; i < 10e9 ; i++) {
-        // band.update();
-        // Vec4f orientation = band.getOrientation();
-        // arm.setTargetOrientation(toEulerAngles(orientation));
+    }*/
 
-        arm.setTargetOrientation({-3.14/2,-3.14/2,0});
-        arm.update();
-        if(i % 100000000) cout << arm << endl;
+
+   for(unsigned int i = 0 ; i < 10e9 ; i++) {
+
+
+      band.update();
+      Vec4f orientation = band.getOrientation();
+      Vec3f target = toEulerAngle(orientation);
+      arm.setTargetOrientation(target);
+      //arm.setTargetOrientation({-3.14/2,-3.14/2,0});
+      arm.update();
+      if(i % 100000000) {
+         cout << "arm:\t"<< arm << endl;
+         cout << "tar:\t" << target.x << "\t" << target.y << "\t" << target.z << endl;
         //sleepMS(1000);
-    }
-    */
+      }
+
+   
+   }
+   owi_shutdown();
 }

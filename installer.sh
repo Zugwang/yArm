@@ -19,4 +19,4 @@ cd ta-lib
 make
 make install
 
-echo "\n\n-- Tout est fini ! Merci de votre patience et à bientôt sur Alex Airlines --"
+echo "\n\n-- Tout est fini ! Merci de votre patience et à bientôt sur Communisme Airlines --"
