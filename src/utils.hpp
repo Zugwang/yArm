@@ -26,6 +26,7 @@ struct Vec4f {
 
 // Renvoie des millisecondes
 long long getMicrotime();
+double secondsSince(long long timestamp);
 // Convertit des quaternions en angles d'euler
 Vec3f toEulerAngle(Vec4f q);
 void sleepMS(int milliseconds); // cross-platform sleep function

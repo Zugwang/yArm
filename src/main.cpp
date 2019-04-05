@@ -5,6 +5,7 @@
 #include <SFML/Graphics.hpp>
 #include <math.h>
 
+#include "libowinew.hpp"
 #include "utils.hpp"
 #include "myoband.hpp"
 #include "owiarm.hpp"
@@ -16,13 +17,18 @@ using namespace sf;
 
 
 int main() {
+    #define CODE_WITH_BASE
 
+    #ifdef CODE_WITH_BASE
     MyoBand band;
-    //RenderWindow window(VideoMode(SCREEN_WIDTH, SCREEN_HEIGHT), "yArm");
-   OwiArm arm;
-   // band.vibrate(myolinux::myo::Vibration::);
-    /*EcgInterpreter interpreter;
-    unsigned int j = 0;
+    OwiArm arm;
+    EcgInterpreter interpreter;
+    RenderWindow window(VideoMode(SCREEN_WIDTH, SCREEN_HEIGHT), "yArm");
+    Vec3f baseOrientation = toEulerAngle(band.getOrientation());
+    bool pinceState = false;
+    long long lastPinceMove = 0;
+    arm.setOrientation(baseOrientation); // A l'initialisation, le bras est à la position du myo
+
     while (window.isOpen()) {
         window.clear(sf::Color::Black);
         sf::Event event;
@@ -30,33 +36,57 @@ int main() {
         {
             if (event.type == sf::Event::Closed)
                 window.close();
+            if(event.type == sf::Event::KeyPressed)
+                switch(event.key.code) {
+                    case sf::Keyboard::Space:
+                        arm.setOrientation((toEulerAngle(band.getOrientation())));
+                        break;
+                    case sf::Keyboard::P:
+                        arm.openPince();
+                        cout << "open pince" << endl;
+                        break;
+                    case sf::Keyboard::O:
+                        arm.closePince();
+                        cout << "open pince" << endl;
+                        break;
+
+                    case sf::Keyboard::Escape:
+                        window.close();
+                        break;
+
+                    default:
+                        break;
+                }
         }
         double data[8];
         band.update();
         band.getEMGArray(data);
-       // cout << "emgData 0" << data[0] << endl;
         interpreter.feedData(data);
         window.draw(interpreter);
         window.display();
-    }*/
+        Vec4f orientation = band.getOrientation();
+        Vec3f target = toEulerAngle(orientation);
+        arm.setTargetOrientation(target);
+        if(interpreter.getPrediction() && secondsSince(lastPinceMove) > 0.5) {
+            if(pinceState) {
+                arm.openPince();
+            } else {
+                arm.closePince();
+            }
+            pinceState = !pinceState;
+            lastPinceMove = getMicrotime();
+        }
+        arm.update();
+    }
+
+    #else
 
 
-   for(unsigned int i = 0 ; i < 10e9 ; i++) {
-
-
-      band.update();
-      Vec4f orientation = band.getOrientation();
-      Vec3f target = toEulerAngle(orientation);
-      arm.setTargetOrientation(target);
-      //arm.setTargetOrientation({-3.14/2,-3.14/2,0});
-      arm.update();
-      if(i % 100000000) {
-         cout << "arm:\t"<< arm << endl;
-         cout << "tar:\t" << target.x << "\t" << target.y << "\t" << target.z << endl;
-        //sleepMS(1000);
-      }
-
-   
-   }
-   owi_shutdown();
+    OwiCommander commander;
+    while(true) {
+        int cmd[8] = {-1, 0, -1, 0, 0, 0, 0, 0};
+        commander.setCMD(cmd);
+        sleepMS(1000);
+    }
+    #endif
 }

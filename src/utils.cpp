@@ -8,8 +8,12 @@ long long getMicrotime(){
 	return currentTime.tv_sec * (int)1e6 + currentTime.tv_usec;
 }
 
+double secondsSince(long long timestamp) {
+	return (getMicrotime() - timestamp) / 10e5f;
+}
+
 Vec3f toEulerAngle(Vec4f q)
-{   
+{
     Vec3f euler;
 	// roll (x-axis rotation)
 	double sinr_cosp = +2.0 * (q.w * q.x + q.y * q.z);
@@ -25,7 +29,7 @@ Vec3f toEulerAngle(Vec4f q)
 
 	// yaw (z-axis rotation)
 	double siny_cosp = +2.0 * (q.w * q.z + q.x * q.y);
-	double cosy_cosp = +1.0 - 2.0 * (q.y * q.y + q.z * q.z);  
+	double cosy_cosp = +1.0 - 2.0 * (q.y * q.y + q.z * q.z);
 	euler.z = atan2(siny_cosp, cosy_cosp);
 	return euler;
 }

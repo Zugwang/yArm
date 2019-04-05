@@ -18,6 +18,12 @@ class EcgInterpreter : public sf::Drawable  {
     EcgInterpreter();
     void feedData(double data[8]);
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
+    int getPrediction() {
+        int val = 0;
+        for(unsigned int i = 0; i < 8; i++)
+            val += mPrediction[i];
+        return val;
+    }
 
     private:
     void _computeIndicators();
