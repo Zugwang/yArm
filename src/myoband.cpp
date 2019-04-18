@@ -6,7 +6,7 @@ using namespace std;
 MyoBand::MyoBand() : mClient(Serial{"/dev/ttyACM0", 115200})  {
     mOrientation = {0,0,0,0};
     // Autoconnect to the first Myo device
-    cout << "created" << endl;
+    cout << "Attempting connection to myo" << endl;
     mClient.connect();
     if (!mClient.connected()) {
       cout << "connection failed :/" << endl;

@@ -20,8 +20,8 @@ int main() {
     #define CODE_WITH_BASE
 
     #ifdef CODE_WITH_BASE
-    MyoBand band;
     OwiArm arm;
+    MyoBand band;
     EcgInterpreter interpreter;
     RenderWindow window(VideoMode(SCREEN_WIDTH, SCREEN_HEIGHT), "yArm");
     Vec3f baseOrientation = toEulerAngle(band.getOrientation());
