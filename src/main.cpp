@@ -67,7 +67,7 @@ int main() {
         Vec4f orientation = band.getOrientation();
         Vec3f target = toEulerAngle(orientation);
         arm.setTargetOrientation(target);
-        if(interpreter.getPrediction() && secondsSince(lastPinceMove) > 0.5) {
+        if(interpreter.getPrediction() && secondsSince(lastPinceMove) > 1) {
             if(pinceState) {
                 arm.openPince();
             } else {
