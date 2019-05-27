@@ -7,14 +7,19 @@
 #include <errno.h>
 #include <cstdio>
 #include <cstring>
+#include <cstdlib>
+
 
 class OwiCommander {
 public:
     OwiCommander();
     ~OwiCommander();
     void setCMD(int cmd[8]);
+    bool getOrientationValues(double *x, double *z);
 private:
     int mFileDescriptor;
+    double mX;
+    double mZ;
 };
 
 #endif

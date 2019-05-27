@@ -4,8 +4,9 @@
 using namespace std;
 
 OwiCommander::OwiCommander() {
-    mFileDescriptor = open("/dev/ttyACM0", O_RDWR);
-
+    mFileDescriptor = open("/dev/ttyACM1", O_RDWR);
+    mX = 0;
+    mZ = 0;
     // Create new termios struc, we call it 'tty' for convention
     struct termios tty;
     memset(&tty, 0, sizeof tty);
@@ -47,25 +48,30 @@ OwiCommander::OwiCommander() {
 }
 
 void OwiCommander::setCMD(int cmd[8]) {
+    fsync(mFileDescriptor);
+
     // Write to serial port
     unsigned char msg[9];
     for(unsigned int i = 0; i < 8; i++) {
         switch(cmd[i]) {
             case -1:
                 msg[i] = 'A';
+                //printf("A");
                 break;
             case 1:
                 msg[i] = 'T';
+            //    printf("T");
                 break;
             case 0:
+            //    printf("E");
                 msg[i] = 'E';
                 break;
         }
     }
+    //printf("\n");
     msg[8] = '\n';
     write(mFileDescriptor, msg, sizeof(msg));
-    #ifdef DEBUG
-    // Allocate memory for read buffer, set size according to your needs
+    fsync(mFileDescriptor);
     char read_buf[256];
     memset(&read_buf, '\0', sizeof(read_buf));
 
@@ -79,11 +85,31 @@ void OwiCommander::setCMD(int cmd[8]) {
         printf("Error reading: %s", strerror(errno));
     }
 
-    // Here we assume we received ASCII data, but you might be sending raw bytes (in that case, don't try and
-    // print it to the screen like this!)
-    printf("Read %i bytes. Received message:\n-------\n%s\n-------\n", num_bytes, read_buf);
-    #endif
+    char *token;
+
+    char *rest = read_buf;
+
+    while ((token = strtok_r(rest, "\n", &rest))) {
+            char *token2;
+            char *rest2 = token;
+            int index = 0;
+            while ((token2 = strtok_r(rest2, ",", &rest2))) {
+                if(index == 0) {
+                    mX = atof(token2) / 360 * (2 * 3.14);
+                } else if (index == 1) {
+                    mZ = -atof(token2) / 360 * (2 * 3.14);
+                }
+                index++;
+            }
+    }
 }
+
+bool OwiCommander::getOrientationValues(double* x, double* z) {
+    *x = mX;
+    *z = mZ;
+    return true;
+}
+
 
 OwiCommander::~OwiCommander() {
     int msg[8] = {0, 0, 0, 0, 0, 0, 0, 0};

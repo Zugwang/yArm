@@ -7,6 +7,7 @@
 
 #define BASE_Y_ROT_SPEED 0.2f // rad/s
 #define BASE_X_ROT_SPEED 0.2f
+#define BASE_Z_ROT_SPEED 0.2f
 
 
 
@@ -15,6 +16,7 @@ public:
     OwiArm();
     void update();
     void setTargetOrientation(Vec3f orientation) { mBasePositionTarget = orientation; }
+    Vec3f getOrientation() { return mBasePosition; }
     void setOrientation(Vec3f orientation) { mBasePosition = orientation; }
     void closePince();
     void openPince();

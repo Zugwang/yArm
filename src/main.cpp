@@ -17,7 +17,8 @@ using namespace sf;
 
 
 int main() {
-    #define CODE_WITH_KEYBOARD
+    // #define CODE_WITH_KEYBOARD
+    #define CODE_WITH_BASE
 
     #ifdef CODE_WITH_BASE
     OwiArm arm;
@@ -66,6 +67,7 @@ int main() {
         window.display();
         Vec4f orientation = band.getOrientation();
         Vec3f target = toEulerAngle(orientation);
+        target.z = 0;
         arm.setTargetOrientation(target);
         if(interpreter.getPrediction() && secondsSince(lastPinceMove) > 1) {
             if(pinceState) {
