@@ -17,7 +17,7 @@ using namespace sf;
 
 
 int main() {
-    #define CODE_WITH_BASE
+    #define CODE_WITH_KEYBOARD
 
     #ifdef CODE_WITH_BASE
     OwiArm arm;
@@ -79,14 +79,70 @@ int main() {
         arm.update();
     }
 
+    #elif defined(CODE_WITH_KEYBOARD)
+    OwiCommander commander;
+    RenderWindow window(VideoMode(SCREEN_WIDTH, SCREEN_HEIGHT), "yArm");
+    while (window.isOpen()) {
+        sf::Event event;
+        int cmd[8] = {0, 0, 0, 0, 0, 0, 0, 0}; 
+        while (window.pollEvent(event))
+        {
+            if (event.type == sf::Event::Closed)
+                window.close();
+            if(event.type == sf::Event::KeyPressed)
+                switch(event.key.code) {
+
+                    case sf::Keyboard::A:
+                        cmd[0] = -1;
+                        break;
+                    case sf::Keyboard::Q:
+                        cmd[0] = 1;
+                        break;
+
+                    case sf::Keyboard::Z:
+                        cmd[1] = -1;
+                        break;
+                    case sf::Keyboard::S:
+                        cmd[2] = 1;
+                        break;
+
+                    case sf::Keyboard::E:
+                        cmd[3] = -1;
+                        break;
+                    case sf::Keyboard::D:
+                        cmd[3] = 1;
+                        break;
+
+                    case sf::Keyboard::R:
+                        cmd[4] = -1;
+                        break;
+                    case sf::Keyboard::F:
+                        cmd[4] = 1;
+                        break;
+
+                    default:
+                        break;
+                }
+        }
+        for(unsigned int i = 0; i < 8; i++)
+            cout << cmd[i];
+        cout << endl;
+        commander.setCMD(cmd);
+        sleepMS(10);
+    }
+
     #else
 
 
     OwiCommander commander;
     while(true) {
-        int cmd[8] = {-1, 0, -1, 0, 0, 0, 0, 0};
+        //int cmd[8] = {0, 0, 0, -1, 0, 0, 0, 0}; // EPAULE
+        int cmd[8] = {0, 1, 0, 0, 0, 0, 0, 0}; // COUDE
+      //  int cmd[8] = {-1, 0, 0, 0, 0, 0, 0, 0}; // EPAULE
+//        int cmd[8] = {0, 0, 1, 0, 0, 0, 0, 0}; // PINCE
+
         commander.setCMD(cmd);
-        sleepMS(1000);
+        sleepMS(10);
     }
     #endif
 }
